@@ -1,0 +1,38 @@
+groups:
+  - name: blockchain
+    rules:
+      - alert: HighBlockTime
+        expr: avg_over_time(block_time[5m]) > 15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High block time detected"
+          description: "Block time is higher than 15 seconds for 5 minutes"
+
+      - alert: NodeDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Blockchain node is down"
+          description: "Node has been down for 5 minutes"
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90%"
+
+      - alert: DiskSpaceLow
+        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100 < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space"
+          description: "Less than 10% disk space remaining"
