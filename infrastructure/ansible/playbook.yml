@@ -1,0 +1,60 @@
+---
+- hosts: blockchain_nodes
+  become: yes
+  tasks:
+    - name: Install required packages
+      apt:
+        name: 
+          - nginx
+          - certbot
+          - python3-certbot-nginx
+          - ufw
+          - docker.io
+          - docker-compose
+        state: present
+        update_cache: yes
+
+    - name: Start and enable Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Configure UFW
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - '22'
+        - '443'
+        - '30303'
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+        policy: deny
+
+    - name: Configure Nginx reverse proxy
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/sites-available/blockchain
+      notify: reload nginx
+
+    - name: Enable Nginx site
+      file:
+        src: /etc/nginx/sites-available/blockchain
+        dest: /etc/nginx/sites-enabled/blockchain
+        state: link
+      notify: reload nginx
+
+    - name: Get SSL certificate
+      command: certbot --nginx -d {{ domain_name }} --non-interactive --agree-tos -m {{ email }}
+      args:
+        creates: /etc/letsencrypt/live/{{ domain_name }}
+
+  handlers:
+    - name: reload nginx
+      service:
+        name: nginx
+        state: reloaded
