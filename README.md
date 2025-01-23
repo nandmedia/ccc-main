@@ -21,8 +21,8 @@ A next-generation blockchain platform for secure, scalable, and decentralized di
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/cipher-chain.git
-cd cipher-chain
+git clone https://github.com/nandmedia/ccc-main.git
+cd ccc-main
 ```
 
 2. Install dependencies:
